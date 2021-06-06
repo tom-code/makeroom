@@ -13,3 +13,6 @@ go build github.com/tom-code/makeroom
 docker build . -t hook.com/makeroom:1
 #edit deploy.yaml - correct caBundle
 ```
+
+
+note: keygen creates tls certificates and keys. it also displays base64 encoded caBundle which shall be added to deploy.yaml
