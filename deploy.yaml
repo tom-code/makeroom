@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: makeroom
+  labels:
+    app: makeroom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: makeroom
+  template:
+    metadata:
+      labels:
+        app: makeroom
+    spec:
+      containers:
+      - name: mekeroom
+        image: hook.com/makeroom:1
+        ports:
+        - containerPort: 443
+        command: ["/makeroom"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: makeroom
+spec:
+  selector:
+    app: makeroom
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+---
+apiVersion: admissionregistration.k8s.io/v1
+#kind: ValidatingWebhookConfiguration
+kind: MutatingWebhookConfiguration
+metadata:
+  name: "hook.test.com"
+webhooks:
+- name: "hook.test.com"
+  rules:
+  - apiGroups:   [""]
+    apiVersions: ["v1"]
+    operations:  ["CREATE"]
+    resources:   ["pods"]
+    scope:       "Namespaced"
+  clientConfig:
+    service:
+      namespace: "default"
+      name: "makeroom"
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM4VENDQWRtZ0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFRTVE0d0RBWURWUVFLRXdWdmQyNWwKY2pBZUZ3MHlNVEEyTURZeE5qVXlORFJhRncweU16QTFNRGN4TmpVeU5EUmFNQkF4RGpBTUJnTlZCQW9UQlc5MwpibVZ5TUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFyeXUyejJiLzVUUFpzaEduCkJVSHUxbVN1YUlRS1BjMDJHdTMyVWwzL3JoTWwzTDFIYk1DWlAxczJkMnhPZmNaejI1aHRqR1oxcjcya28xYUMKaVdDdFM1TlhlL0U4U2pTT1d5R3h6bDR3QTFnRW40dlFvOW9MOEo0by9UdldVcENHY0o3TURwNVNoRWVqMkdVbQpEQUEyTUtuSXcyMXJnWHRSVlBRTTZrTGlGVXF3VGE4TGNFK3FYV0U1a2tGMmRKN2tCTnNlajVxbkVPZDBSRGlICjU2VUJiRlMyem5zSUpyd0dla1JPSmlmODRtejVtS0lNNENTNjdMbUZ6U3FaRGxkS2JmcWNIaVlXa2dYekYvOFcKL0JMS0pmbkc4M242cmhHVG9iVmRVQ2RYWkpNRnJHZXUrTXhrdlZ0anFOc2h0SXR2MjVjZG9uUW5QK2IvQmlnRwp6M0VVTFFJREFRQUJvMVl3VkRBT0JnTlZIUThCQWY4RUJBTUNCYUF3RXdZRFZSMGxCQXd3Q2dZSUt3WUJCUVVICkF3RXdEQVlEVlIwVEFRSC9CQUl3QURBZkJnTlZIUkVFR0RBV2doUnRZV3RsY205dmJTNWtaV1poZFd4MExuTjIKWXpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWMyTkJ3M0x1bllxTmNIYWEwY1YxZlZhREUwZXdCVHlWKzZGZQpQWUQ2UWFHWGpBRnVKSzRWbVlzV0tubTV3Q25rdzdCaWZ2Ui80NkdETUZOZzdKZDFocEpoWVRTa1o3dVBQdERKClo0eHR2N1ZpdFVwTHZUZURqSkVSVDRJYjBHYlpnRzVidEJ2TDlsWGZIcnJZaUR5cC9YOTNsR0RVejNTRUJ1bVQKUUo4aW9SeTA4SUJQVHBlNDRyUzhXQ2xkdDkvME50aXFmd2ltcllaZ3YxVW1iaVNTQnhIVEk5S3JOZVFYVFJYYgpqaFVtNE5BS2d2VHh5YkNPTUZRRVJXU1d2TlV2Mzg2RFY3ZUROMzJUS0JlZ290eUtuVGlCMVk5NGtJbzI3R1lpClU2T09TcTljUkozaHpKYUhyUTN0Z2dpNzZFYkE5bUpKZ1BhY1BLSUVLTXJXL0hRZm13PT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  timeoutSeconds: 5
+
